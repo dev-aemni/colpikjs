@@ -1,0 +1,212 @@
+<!--
+FILES:
+
+index.html
+colpik.css
+colpik.js
+-->
+
+<!-- ========================= -->
+<!-- index.html                -->
+<!-- ========================= -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+  content="width=device-width, initial-scale=1.0">
+
+<title>Colpik.js</title>
+
+<link rel="stylesheet" href="colpik.css">
+
+<style>
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  background: #070b14;
+  font-family: Inter, system-ui, sans-serif;
+  transition: background .3s ease;
+}
+
+h3 {
+  color: #9ca3af;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 0 0 .4rem;
+}
+
+.open-btn {
+  border: none;
+  padding: .9rem 1.2rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 .7rem 2rem rgba(37, 99, 235, .25);
+}
+
+/* demo grid */
+.demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+  width: min(90vw, 360px);
+}
+
+.demo-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: .9rem;
+  padding: .8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+.demo-card button {
+  border: none;
+  padding: .5rem .9rem;
+  border-radius: .7rem;
+  font-size: .78rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  white-space: nowrap;
+}
+
+.info {
+  color: #9ca3af;
+  font-size: .8rem;
+  text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ─── 1. Default full picker ─── -->
+<h3>Full picker (dark)</h3>
+<button id="openFull" class="open-btn">
+  Open Colpik.js
+</button>
+
+<div class="info">Click APPLY to change page background</div>
+
+<!-- ─── 2. Demo grid ─── -->
+<div class="demo-grid">
+
+  <!-- light theme -->
+  <div class="demo-card">
+    <h3>Light theme</h3>
+    <button id="openLight">Light</button>
+  </div>
+
+  <!-- no alpha slider -->
+  <div class="demo-card">
+    <h3>No alpha</h3>
+    <button id="openNoAlpha">No alpha</button>
+  </div>
+
+  <!-- minimal: picker + hex + buttons only -->
+  <div class="demo-card">
+    <h3>Minimal</h3>
+    <button id="openMinimal">Minimal</button>
+  </div>
+
+  <!-- quick-colors only (no main picker) -->
+  <div class="demo-card">
+    <h3>Swatches only</h3>
+    <button id="openSwatches">Swatches</button>
+  </div>
+
+</div>
+
+<script src="colpik.js"></script>
+
+<script>
+
+/* 1. Full picker — dark (default) */
+const fullPicker = new Colpik({
+  el: '#openFull',
+  width: 240,
+  format: 'hex',
+  theme: 'dark',
+  onPick(color) {
+    document.body.style.background = color.hex;
+  }
+});
+
+/* 2. Light theme */
+const lightPicker = new Colpik({
+  el: '#openLight',
+  theme: 'light',
+  width: 220,
+  format: 'hex',
+  onPick(color) {
+    document.body.style.background = color.hex;
+  }
+});
+
+/* 3. No alpha slider */
+const noAlphaPicker = new Colpik({
+  el: '#openNoAlpha',
+  theme: 'dark',
+  components: {
+    alphaSlider: false
+  },
+  onPick(color) {
+    document.body.style.background = color.hex;
+  }
+});
+
+/* 4. Minimal — just picker area + hex input + buttons */
+const minimalPicker = new Colpik({
+  el: '#openMinimal',
+  theme: 'dark',
+  format: 'hex',
+  components: {
+    alphaSlider:  false,
+    formatSelect: false,
+    quickColors:  false
+  },
+  onPick(color) {
+    document.body.style.background = color.hex;
+  }
+});
+
+/* 5. Swatches / quick colors only — no main picker */
+const swatchesPicker = new Colpik({
+  el: '#openSwatches',
+  theme: 'dark',
+  components: {
+    mainPicker:   false,
+    hueSlider:    false,
+    alphaSlider:  false,
+    formatSelect: false
+  },
+  onPick(color) {
+    document.body.style.background = color.hex;
+  }
+});
+
+</script>
+</body>
+</html>
