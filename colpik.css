@@ -1,0 +1,262 @@
+/* ========================= */
+/* colpik.css                */
+/* ========================= */
+
+/* ---------- dark theme tokens (default) ---------- */
+.colpik-theme-dark {
+  --cp-bg:          rgba(18, 18, 22, .96);
+  --cp-border:      rgba(255, 255, 255, .08);
+  --cp-text:        #ffffff;
+  --cp-input-bg:    rgba(255, 255, 255, .05);
+  --cp-btn-bg:      rgba(255, 255, 255, .08);
+  --cp-btn-hover:   rgba(255, 255, 255, .14);
+  --cp-shadow:      rgba(0, 0, 0, .5);
+}
+
+/* ---------- light theme tokens ---------- */
+.colpik-theme-light {
+  --cp-bg:          rgba(250, 250, 252, .97);
+  --cp-border:      rgba(0, 0, 0, .10);
+  --cp-text:        #111111;
+  --cp-input-bg:    rgba(0, 0, 0, .04);
+  --cp-btn-bg:      rgba(0, 0, 0, .06);
+  --cp-btn-hover:   rgba(0, 0, 0, .11);
+  --cp-shadow:      rgba(0, 0, 0, .18);
+}
+
+/* ---------- base shell ---------- */
+.colpik {
+
+  --cp-width:     240px;
+  --cp-min-width: 180px;
+  --cp-max-width: 340px;
+
+  width: min(var(--cp-width), 88vw);
+  min-width: var(--cp-min-width);
+  max-width: var(--cp-max-width);
+
+  position: fixed;
+
+  background:      var(--cp-bg);
+  border:          1px solid var(--cp-border);
+  border-radius:   1rem;
+  overflow:        hidden;
+  z-index:         999999;
+  backdrop-filter: blur(1rem);
+
+  box-shadow:
+    0 .85rem 2.6rem var(--cp-shadow);
+
+  opacity:         0;
+  transform:       translateY(.5rem) scale(.96);
+  pointer-events:  none;
+  transition:      .15s ease;
+
+  font-family:
+    Inter, system-ui, sans-serif;
+
+}
+
+.colpik.show {
+  opacity:        1;
+  transform:      translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* ---------- main picker area ---------- */
+/* reduced aspect-ratio from 1/.82 → 1/.72 (~20px shorter) */
+
+.colpik-top {
+  padding: .5rem .5rem 0;   /* was .6rem */
+}
+
+.colpik-area {
+  width:         100%;
+  aspect-ratio:  1 / .72;   /* ← was 1/.82 — roughly –20px on 240px wide */
+  position:      relative;
+  border-radius: .9rem;
+  overflow:      hidden;
+  cursor:        crosshair;
+  background:    red;
+}
+
+.colpik-area::before,
+.colpik-area::after {
+  content:        "";
+  position:       absolute;
+  inset:          0;
+  pointer-events: none;
+}
+
+.colpik-area::before {
+  background: linear-gradient(
+    90deg,
+    #fff 0%,
+    rgba(255, 255, 255, 0) 100.2%
+  );
+}
+
+.colpik-area::after {
+  background: linear-gradient(
+    0deg,
+    #000 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.colpik-dot {
+  width:         .9rem;
+  height:        .9rem;
+  border-radius: 50%;
+  border:        .13rem solid white;
+  position:      absolute;
+  transform:     translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow:    0 0 0 .13rem rgba(0, 0, 0, .35);
+}
+
+/* ---------- controls ---------- */
+
+.colpik-controls {
+  padding:        .42rem .5rem .5rem; /* was 0 .6rem .6rem */
+  display:        flex;
+  flex-direction: column;
+  gap:            .38rem;             /* was .42rem */
+}
+
+/* ---------- sliders ---------- */
+
+.colpik-slider {
+  appearance:    none;
+  width:         100%;
+  height:        .58rem;
+  border-radius: 999rem;
+  outline:       none;
+}
+
+.colpik-slider::-webkit-slider-thumb {
+  appearance:    none;
+  width:         1rem;
+  height:        1rem;
+  border-radius: 50%;
+  background:    white;
+  border:        .12rem solid black;
+  cursor:        pointer;
+}
+
+.colpik-hue {
+  background: linear-gradient(
+    to right,
+    red, yellow, lime, cyan, blue, magenta, red
+  );
+}
+
+.colpik-alpha {
+  background: linear-gradient(
+    to right,
+    transparent,
+    white
+  );
+}
+
+/* ---------- preview + input ---------- */
+
+.colpik-preview-wrap {
+  display:     flex;
+  gap:         .4rem;
+  align-items: center;
+}
+
+.colpik-preview {
+  width:        1.9rem;
+  height:       1.9rem;
+  border-radius: .65rem;
+  flex-shrink:  0;
+  border:       1px solid var(--cp-border);
+}
+
+.colpik-input {
+  flex:          1;
+  height:        1.9rem;
+  border:        none;
+  outline:       none;
+  color:         var(--cp-text);
+  background:    var(--cp-input-bg);
+  border:        1px solid var(--cp-border);
+  border-radius: .75rem;
+  padding:       0 .65rem;
+  font-size:     .78rem;
+}
+
+/* ---------- format select ---------- */
+
+.colpik-format {
+  width:         100%;
+  height:        1.9rem;
+  border:        none;
+  outline:       none;
+  color:         var(--cp-text);
+  background:    var(--cp-input-bg);
+  border:        1px solid var(--cp-border);
+  border-radius: .75rem;
+  padding:       0 .6rem;
+  font-size:     .78rem;
+  cursor:        pointer;
+}
+
+/* ---------- palette ---------- */
+
+.colpik-palette {
+  display:               grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:                   .3rem;
+}
+
+.colpik-color {
+  aspect-ratio:  1;
+  border-radius: .65rem;
+  cursor:        pointer;
+  border:        1px solid var(--cp-border);
+  transition:    transform .1s;
+}
+
+.colpik-color:hover {
+  transform: scale(1.08);
+}
+
+/* ---------- buttons ---------- */
+
+.colpik-buttons {
+  display: flex;
+  gap:     .38rem;
+}
+
+.colpik-btn {
+  flex:          1;
+  height:        1.7rem;
+  border:        none;
+  border-radius: .7rem;
+  background:    var(--cp-btn-bg);
+  color:         var(--cp-text);
+  font-size:     .7rem;
+  font-weight:   700;
+  cursor:        pointer;
+  transition:    background .15s, transform .1s;
+}
+
+.colpik-btn:hover {
+  background: var(--cp-btn-hover);
+  transform:  translateY(-1px);
+}
+
+.colpik-btn:active {
+  transform: translateY(0);
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width: 480px) {
+  .colpik {
+    width: min(92vw, 240px);
+  }
+}
