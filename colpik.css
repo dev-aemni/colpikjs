@@ -2,26 +2,50 @@
 /* colpik.css                */
 /* ========================= */
 
-/* ---------- dark theme tokens (default) ---------- */
+/* ---------- dark theme ---------- */
 .colpik-theme-dark {
-  --cp-bg:          rgba(18, 18, 22, .96);
-  --cp-border:      rgba(255, 255, 255, .08);
-  --cp-text:        #ffffff;
-  --cp-input-bg:    rgba(255, 255, 255, .05);
-  --cp-btn-bg:      rgba(255, 255, 255, .08);
-  --cp-btn-hover:   rgba(255, 255, 255, .14);
-  --cp-shadow:      rgba(0, 0, 0, .5);
+  --cp-bg:        rgba(18, 18, 22, .96);
+  --cp-border:    rgba(255, 255, 255, .08);
+  --cp-text:      #ffffff;
+  --cp-input-bg:  rgba(255, 255, 255, .05);
+  --cp-btn-bg:    rgba(255, 255, 255, .08);
+  --cp-btn-hover: rgba(255, 255, 255, .14);
+  --cp-shadow:    rgba(0, 0, 0, .5);
+  --cp-blur:      0px;
 }
 
-/* ---------- light theme tokens ---------- */
+/* ---------- light theme ---------- */
 .colpik-theme-light {
-  --cp-bg:          rgba(250, 250, 252, .97);
-  --cp-border:      rgba(0, 0, 0, .10);
-  --cp-text:        #111111;
-  --cp-input-bg:    rgba(0, 0, 0, .04);
-  --cp-btn-bg:      rgba(0, 0, 0, .06);
-  --cp-btn-hover:   rgba(0, 0, 0, .11);
-  --cp-shadow:      rgba(0, 0, 0, .18);
+  --cp-bg:        rgba(250, 250, 252, .97);
+  --cp-border:    rgba(0, 0, 0, .10);
+  --cp-text:      #111111;
+  --cp-input-bg:  rgba(0, 0, 0, .04);
+  --cp-btn-bg:    rgba(0, 0, 0, .06);
+  --cp-btn-hover: rgba(0, 0, 0, .11);
+  --cp-shadow:    rgba(0, 0, 0, .18);
+  --cp-blur:      0px;
+}
+
+/*
+  ---------- glass theme ----------
+  --cp-glass-bg, --cp-glass-blur, --cp-glass-border-alpha
+  are injected inline by JS so the user's transparency/blur
+  values are reflected live.
+  Fallbacks here are the defaults (transparency:18, blur:16).
+*/
+.colpik-theme-glass {
+  --cp-glass-bg:           rgba(255, 255, 255, 0.042);
+  --cp-glass-blur:         16px;
+  --cp-glass-border-alpha: 0.22;
+
+  --cp-bg:        var(--cp-glass-bg);
+  --cp-border:    rgba(255, 255, 255, var(--cp-glass-border-alpha));
+  --cp-text:      #ffffff;
+  --cp-input-bg:  rgba(255, 255, 255, .07);
+  --cp-btn-bg:    rgba(255, 255, 255, .09);
+  --cp-btn-hover: rgba(255, 255, 255, .16);
+  --cp-shadow:    rgba(0, 0, 0, .28);
+  --cp-blur:      var(--cp-glass-blur);
 }
 
 /* ---------- base shell ---------- */
@@ -31,31 +55,55 @@
   --cp-min-width: 180px;
   --cp-max-width: 340px;
 
-  width: min(var(--cp-width), 88vw);
+  width:     min(var(--cp-width), 88vw);
   min-width: var(--cp-min-width);
   max-width: var(--cp-max-width);
 
-  position: fixed;
+  position:  fixed;
+  z-index:   999999;
 
   background:      var(--cp-bg);
   border:          1px solid var(--cp-border);
   border-radius:   1rem;
-  overflow:        hidden;
-  z-index:         999999;
-  backdrop-filter: blur(1rem);
+
+  /* NO overflow:hidden here — it clips the picker area edges.
+     Clipping is handled per-child instead. */
+
+  backdrop-filter: blur(var(--cp-blur));
+  -webkit-backdrop-filter: blur(var(--cp-blur));
 
   box-shadow:
-    0 .85rem 2.6rem var(--cp-shadow);
+    0 .85rem 2.6rem var(--cp-shadow),
+    /* glass inner highlight */
+    inset 0 1px 0 rgba(255,255,255,.18);
 
-  opacity:         0;
-  transform:       translateY(.5rem) scale(.96);
-  pointer-events:  none;
-  transition:      .15s ease;
+  opacity:        0;
+  transform:      translateY(.5rem) scale(.96);
+  pointer-events: none;
+  transition:     opacity .15s ease, transform .15s ease,
+                  background .2s ease, backdrop-filter .2s ease;
 
-  font-family:
-    Inter, system-ui, sans-serif;
-
+  font-family: Inter, system-ui, sans-serif;
 }
+
+/* glass gets a subtle top-edge shimmer */
+.colpik-theme-glass::before {
+  content:       "";
+  position:      absolute;
+  inset:         0;
+  border-radius: inherit;
+  background:    linear-gradient(
+    160deg,
+    rgba(255,255,255,.13) 0%,
+    rgba(255,255,255,.03) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* all direct children sit above the shimmer */
+.colpik > * { position: relative; z-index: 1; }
 
 .colpik.show {
   opacity:        1;
@@ -64,99 +112,122 @@
 }
 
 /* ---------- main picker area ---------- */
-/* reduced aspect-ratio from 1/.82 → 1/.72 (~20px shorter) */
 
 .colpik-top {
-  padding: .5rem .5rem 0;   /* was .6rem */
+  padding: .5rem .5rem 0;
 }
 
 .colpik-area {
   width:         100%;
-  aspect-ratio:  1 / .72;   /* ← was 1/.82 — roughly –20px on 240px wide */
+  aspect-ratio:  1 / .72;
   position:      relative;
-  border-radius: .9rem;
-  overflow:      hidden;
-  cursor:        crosshair;
-  background:    red;
+  border-radius: .75rem;
+
+  /* Fix: use clip-path instead of overflow:hidden so the
+     1-px subpixel edge is not eaten by the parent border.
+     clip-path respects border-radius on all sides cleanly. */
+  overflow:   hidden;
+  /* Extra: isolate the stacking context so pseudos don't bleed */
+  isolation:  isolate;
+
+  cursor:     crosshair;
+  background: red; /* replaced by JS */
 }
 
-.colpik-area::before,
+/* White → transparent (left→right : saturation axis) */
+.colpik-area::before {
+  content:        "";
+  position:       absolute;
+  inset:          0;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    #fff,
+    rgba(255, 255, 255, 0)
+  );
+  z-index: 1;
+}
+
+/* Transparent → black (top→bottom : lightness axis) */
 .colpik-area::after {
   content:        "";
   position:       absolute;
   inset:          0;
   pointer-events: none;
-}
-
-.colpik-area::before {
   background: linear-gradient(
-    90deg,
-    #fff 0%,
-    rgba(255, 255, 255, 0) 100.2%
+    to bottom,
+    rgba(0, 0, 0, 0),
+    #000
   );
-}
-
-.colpik-area::after {
-  background: linear-gradient(
-    0deg,
-    #000 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  z-index: 2;
 }
 
 .colpik-dot {
-  width:         .9rem;
-  height:        .9rem;
-  border-radius: 50%;
-  border:        .13rem solid white;
-  position:      absolute;
-  transform:     translate(-50%, -50%);
+  width:          .9rem;
+  height:         .9rem;
+  border-radius:  50%;
+  border:         2px solid #fff;
+  position:       absolute;
+  transform:      translate(-50%, -50%);
   pointer-events: none;
-  box-shadow:    0 0 0 .13rem rgba(0, 0, 0, .35);
+  z-index:        3;
+  box-shadow:
+    0 0 0 1.5px rgba(0,0,0,.4),
+    0 1px 4px rgba(0,0,0,.5);
 }
 
 /* ---------- controls ---------- */
 
 .colpik-controls {
-  padding:        .42rem .5rem .5rem; /* was 0 .6rem .6rem */
+  padding:        .42rem .5rem .5rem;
   display:        flex;
   flex-direction: column;
-  gap:            .38rem;             /* was .42rem */
+  gap:            .38rem;
 }
 
 /* ---------- sliders ---------- */
 
 .colpik-slider {
   appearance:    none;
+  -webkit-appearance: none;
   width:         100%;
   height:        .58rem;
   border-radius: 999rem;
   outline:       none;
+  border:        none;
+  cursor:        pointer;
 }
 
 .colpik-slider::-webkit-slider-thumb {
   appearance:    none;
+  -webkit-appearance: none;
   width:         1rem;
   height:        1rem;
   border-radius: 50%;
-  background:    white;
-  border:        .12rem solid black;
+  background:    #fff;
+  border:        2px solid rgba(0,0,0,.35);
   cursor:        pointer;
+  box-shadow:    0 1px 4px rgba(0,0,0,.4);
 }
 
 .colpik-hue {
   background: linear-gradient(
     to right,
-    red, yellow, lime, cyan, blue, magenta, red
+    #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00
   );
 }
 
 .colpik-alpha {
   background: linear-gradient(
     to right,
-    transparent,
-    white
+    rgba(255,255,255,0),
+    rgba(255,255,255,1)
   );
+  /* checkerboard behind so transparency is visible */
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1)),
+    repeating-conic-gradient(#aaa 0% 25%, #fff 0% 50%);
+  background-size: 100% 100%, .5rem .5rem;
 }
 
 /* ---------- preview + input ---------- */
@@ -168,24 +239,38 @@
 }
 
 .colpik-preview {
-  width:        1.9rem;
-  height:       1.9rem;
-  border-radius: .65rem;
-  flex-shrink:  0;
-  border:       1px solid var(--cp-border);
+  width:         1.9rem;
+  height:        1.9rem;
+  border-radius: .6rem;
+  flex-shrink:   0;
+  border:        1px solid var(--cp-border);
+  /* checkerboard so alpha shows */
+  background-image:
+    repeating-conic-gradient(#888 0% 25%, #ccc 0% 50%);
+  background-size: .6rem .6rem;
+  position: relative;
+}
+
+/* actual color sits on top of checkerboard */
+.colpik-preview::after {
+  content:       "";
+  position:      absolute;
+  inset:         0;
+  border-radius: inherit;
+  background:    inherit;
 }
 
 .colpik-input {
   flex:          1;
   height:        1.9rem;
-  border:        none;
   outline:       none;
   color:         var(--cp-text);
   background:    var(--cp-input-bg);
   border:        1px solid var(--cp-border);
-  border-radius: .75rem;
+  border-radius: .7rem;
   padding:       0 .65rem;
   font-size:     .78rem;
+  font-family:   inherit;
 }
 
 /* ---------- format select ---------- */
@@ -193,14 +278,14 @@
 .colpik-format {
   width:         100%;
   height:        1.9rem;
-  border:        none;
   outline:       none;
   color:         var(--cp-text);
   background:    var(--cp-input-bg);
   border:        1px solid var(--cp-border);
-  border-radius: .75rem;
+  border-radius: .7rem;
   padding:       0 .6rem;
   font-size:     .78rem;
+  font-family:   inherit;
   cursor:        pointer;
 }
 
@@ -214,14 +299,15 @@
 
 .colpik-color {
   aspect-ratio:  1;
-  border-radius: .65rem;
+  border-radius: .6rem;
   cursor:        pointer;
   border:        1px solid var(--cp-border);
-  transition:    transform .1s;
+  transition:    transform .12s ease, box-shadow .12s ease;
 }
 
 .colpik-color:hover {
-  transform: scale(1.08);
+  transform:  scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 
 /* ---------- buttons ---------- */
@@ -233,15 +319,18 @@
 
 .colpik-btn {
   flex:          1;
-  height:        1.7rem;
+  height:        1.75rem;
   border:        none;
-  border-radius: .7rem;
+  border-radius: .65rem;
   background:    var(--cp-btn-bg);
   color:         var(--cp-text);
   font-size:     .7rem;
   font-weight:   700;
+  font-family:   inherit;
   cursor:        pointer;
   transition:    background .15s, transform .1s;
+  /* glass: add border highlight on buttons too */
+  border:        1px solid var(--cp-border);
 }
 
 .colpik-btn:hover {
