@@ -1,31 +1,20 @@
 <!--
 FILES:
-
-index.html
-colpik.css
-colpik.js
+  index.html
+  colpik.css
+  colpik.js
 -->
-
-<!-- ========================= -->
-<!-- index.html                -->
-<!-- ========================= -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-  content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colpik.js</title>
-
 <link rel="stylesheet" href="colpik.css">
-
 <style>
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -34,67 +23,78 @@ body {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 1rem;
-  background: #070b14;
+  gap: 1.1rem;
+  /* nice colourful bg so the glass effect is visible */
+  background:
+    radial-gradient(ellipse at 20% 30%, #3b1f6e 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 70%, #0f4c75 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, #1a1a2e 0%, transparent 60%),
+    #0d0d1a;
   font-family: Inter, system-ui, sans-serif;
-  transition: background .3s ease;
+  transition: background .4s ease;
 }
 
 h3 {
-  color: #9ca3af;
-  font-size: .75rem;
+  color: rgba(255,255,255,.45);
+  font-size: .7rem;
   font-weight: 600;
-  letter-spacing: .08em;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  margin: 0 0 .4rem;
+  margin: 0 0 .35rem;
 }
 
-.open-btn {
+.trigger-btn {
   border: none;
-  padding: .9rem 1.2rem;
-  border-radius: 1rem;
-  font-size: 1rem;
+  padding: .75rem 1.3rem;
+  border-radius: .85rem;
+  font-size: .9rem;
   font-weight: 700;
-  color: white;
+  color: #fff;
   cursor: pointer;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
-  box-shadow: 0 .7rem 2rem rgba(37, 99, 235, .25);
+  box-shadow: 0 6px 20px rgba(37,99,235,.3);
+  font-family: inherit;
+  transition: transform .12s, box-shadow .12s;
+}
+.trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(37,99,235,.35);
 }
 
-/* demo grid */
 .demo-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .7rem;
-  width: min(90vw, 360px);
+  gap: .65rem;
+  width: min(90vw, 340px);
 }
 
 .demo-card {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: .9rem;
-  padding: .8rem;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: .85rem;
+  padding: .75rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .5rem;
+  gap: .45rem;
+  backdrop-filter: blur(6px);
 }
 
 .demo-card button {
   border: none;
-  padding: .5rem .9rem;
-  border-radius: .7rem;
-  font-size: .78rem;
+  padding: .45rem .85rem;
+  border-radius: .65rem;
+  font-size: .75rem;
   font-weight: 700;
-  color: white;
+  color: #fff;
   cursor: pointer;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
-  white-space: nowrap;
+  font-family: inherit;
 }
 
 .info {
-  color: #9ca3af;
-  font-size: .8rem;
+  color: rgba(255,255,255,.35);
+  font-size: .75rem;
   text-align: center;
 }
 
@@ -102,109 +102,80 @@ h3 {
 </head>
 <body>
 
-<!-- ─── 1. Default full picker ─── -->
-<h3>Full picker (dark)</h3>
-<button id="openFull" class="open-btn">
-  Open Colpik.js
-</button>
+<!-- 1. Default — glass with defaults -->
+<h3>Glass theme (default)</h3>
+<button id="openDefault" class="trigger-btn">Open Colpik.js</button>
+<p class="info">APPLY changes the background · glass theme is default</p>
 
-<div class="info">Click APPLY to change page background</div>
-
-<!-- ─── 2. Demo grid ─── -->
+<!-- 2. Variant demos -->
 <div class="demo-grid">
 
-  <!-- light theme -->
+  <div class="demo-card">
+    <h3>More transparent</h3>
+    <button id="openTrans">transparency: 60</button>
+  </div>
+
+  <div class="demo-card">
+    <h3>Heavy blur</h3>
+    <button id="openBlur">blur: 32</button>
+  </div>
+
+  <div class="demo-card">
+    <h3>Dark theme</h3>
+    <button id="openDark">Dark</button>
+  </div>
+
   <div class="demo-card">
     <h3>Light theme</h3>
     <button id="openLight">Light</button>
   </div>
 
-  <!-- no alpha slider -->
-  <div class="demo-card">
-    <h3>No alpha</h3>
-    <button id="openNoAlpha">No alpha</button>
-  </div>
-
-  <!-- minimal: picker + hex + buttons only -->
-  <div class="demo-card">
-    <h3>Minimal</h3>
-    <button id="openMinimal">Minimal</button>
-  </div>
-
-  <!-- quick-colors only (no main picker) -->
-  <div class="demo-card">
-    <h3>Swatches only</h3>
-    <button id="openSwatches">Swatches</button>
-  </div>
-
 </div>
 
 <script src="colpik.js"></script>
-
 <script>
 
-/* 1. Full picker — dark (default) */
-const fullPicker = new Colpik({
-  el: '#openFull',
-  width: 240,
+/* ── 1. Default glass ── */
+const pickerDefault = new Colpik({
+  el: '#openDefault',
+  theme: 'glass',
+  /* transparency & blur are optional — these are the baked-in defaults */
+  // transparency: 18,
+  // blur: 16,
   format: 'hex',
-  theme: 'dark',
-  onPick(color) {
-    document.body.style.background = color.hex;
-  }
+  onPick(c) { document.body.style.background = c.hex; }
 });
 
-/* 2. Light theme */
-const lightPicker = new Colpik({
+/* ── 2. More transparent glass ── */
+const pickerTrans = new Colpik({
+  el: '#openTrans',
+  theme: 'glass',
+  transparency: 60,
+  blur: 16,
+  onPick(c) { document.body.style.background = c.hex; }
+});
+
+/* ── 3. Heavy blur glass ── */
+const pickerBlur = new Colpik({
+  el: '#openBlur',
+  theme: 'glass',
+  transparency: 18,
+  blur: 32,
+  onPick(c) { document.body.style.background = c.hex; }
+});
+
+/* ── 4. Dark ── */
+const pickerDark = new Colpik({
+  el: '#openDark',
+  theme: 'dark',
+  onPick(c) { document.body.style.background = c.hex; }
+});
+
+/* ── 5. Light ── */
+const pickerLight = new Colpik({
   el: '#openLight',
   theme: 'light',
-  width: 220,
-  format: 'hex',
-  onPick(color) {
-    document.body.style.background = color.hex;
-  }
-});
-
-/* 3. No alpha slider */
-const noAlphaPicker = new Colpik({
-  el: '#openNoAlpha',
-  theme: 'dark',
-  components: {
-    alphaSlider: false
-  },
-  onPick(color) {
-    document.body.style.background = color.hex;
-  }
-});
-
-/* 4. Minimal — just picker area + hex input + buttons */
-const minimalPicker = new Colpik({
-  el: '#openMinimal',
-  theme: 'dark',
-  format: 'hex',
-  components: {
-    alphaSlider:  false,
-    formatSelect: false,
-    quickColors:  false
-  },
-  onPick(color) {
-    document.body.style.background = color.hex;
-  }
-});
-
-/* 5. Swatches / quick colors only — no main picker */
-const swatchesPicker = new Colpik({
-  el: '#openSwatches',
-  theme: 'dark',
-  components: {
-    mainPicker:   false,
-    hueSlider:    false,
-    alphaSlider:  false,
-    formatSelect: false
-  },
-  onPick(color) {
-    document.body.style.background = color.hex;
-  }
+  onPick(c) { document.body.style.background = c.hex; }
 });
 
 </script>
